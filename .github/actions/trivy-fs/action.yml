@@ -1,0 +1,18 @@
+name: Trivy filesystem scan
+description: Scan source dependencies and fail on critical vulnerabilities.
+inputs:
+  scan-ref:
+    description: Path to scan.
+    required: false
+    default: .
+runs:
+  using: composite
+  steps:
+    - name: Scan dependencies
+      uses: aquasecurity/trivy-action@0.28.0
+      with:
+        scan-type: fs
+        scan-ref: ${{ inputs.scan-ref }}
+        scanners: vuln
+        severity: CRITICAL
+        exit-code: "1"

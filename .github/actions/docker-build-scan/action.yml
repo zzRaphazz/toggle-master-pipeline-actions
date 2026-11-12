@@ -1,0 +1,28 @@
+name: Build and scan service image
+description: Build a Docker image and fail on critical vulnerabilities.
+inputs:
+  image-ref:
+    description: Local image name and tag.
+    required: true
+  context:
+    description: Docker build context.
+    required: false
+    default: .
+runs:
+  using: composite
+  steps:
+    - name: Build image
+      shell: bash
+      env:
+        IMAGE_REF: ${{ inputs.image-ref }}
+        BUILD_CONTEXT: ${{ inputs.context }}
+      run: docker build --tag "$IMAGE_REF" "$BUILD_CONTEXT"
+
+    - name: Scan image
+      uses: aquasecurity/trivy-action@0.28.0
+      with:
+        image-ref: ${{ inputs.image-ref }}
+        scan-type: image
+        scanners: vuln
+        severity: CRITICAL
+        exit-code: "1"
